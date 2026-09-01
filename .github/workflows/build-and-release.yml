@@ -1,0 +1,54 @@
+# .github/workflows/build-and-release.yml
+name: Build LaTeX and Update Latest Release
+
+on:
+  push:
+    branches:
+      - main  # или ваша основная ветка (master)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- Компиляция всех .tex файлов ---
+      - name: Compile all LaTeX documents
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: "*/**/*.tex"
+          glob_root_file: true
+          work_in_root_file_dir: true
+          latexmk_use_lualatex: true
+          args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -shell-escape"
+          texlive_version: latest
+          extra_packages: "newcomputermodern"
+
+      # --- Просмотр сгенерированных PDF (для отладки) ---
+      - name: List generated PDFs
+        run: find . -name "*.pdf" -type f
+
+      # --- Получение текущей даты и времени (в формате, удобном для чтения) ---
+      - name: Get current date
+        id: date
+        run: echo "build_date=$(date +'%Y-%m-%d %H:%M:%S %z')" >> $GITHUB_OUTPUT
+
+      # --- Создание/обновление релиза "latest" ---
+      - name: Update 'latest' Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: latest
+          allowUpdates: true
+          replaceArtifacts: true
+          artifacts: "**/*.pdf"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: false
+          # Тело релиза с подстановкой даты
+          body: |
+            Готовые pdf файлы лекций.
+            Дата последнего изменения ${{ steps.date.outputs.build_date }}
