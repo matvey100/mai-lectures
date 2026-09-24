@@ -67,7 +67,12 @@
 \newtheorem*{solution}{Решение}
 
 \usepackage{enumitem} % Расстояние между элементами списка
-\setlist{itemsep=5pt, parsep=0pt, topsep=5pt, partopsep=0pt}
+\setlist{nosep}
+
+% работа с русскими обозначениями элементов списка \begin{enumerate}[label=\asbuk*), ref=\asbuk*]
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@asbuk@alph}{щ}
+\makeatother
 
 \usepackage[singlespacing]{setspace} % Межстрочный интервал
 \setlength{\parindent}{1.25cm} % Табуляция
@@ -110,6 +115,9 @@ citecolor=black, menucolor=black, filecolor=black,
 \DeclareMathOperator{\ctg}{ctg}
 \DeclareMathOperator{\grad}{grad}
 \DeclareMathOperator{\tg}{tg}
+
+% Правильная норма с автоматическим размером $\norm*{\dfrac{f(x)}{g(x)}}$
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
 
 % --- Компенсация артефактов OTF-математики у интегралов с пределами ---
 \newcommand*{\intgap}{\mskip-9mu\relax} % стягивание материала после оператора
